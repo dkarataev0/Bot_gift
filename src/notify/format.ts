@@ -32,6 +32,13 @@ export function fmtAttr(a: GiftAttribute | null): string {
   return r ? `${esc(a.name)} <i>(${r})</i>` : esc(a.name);
 }
 
+/** Счётчик «выпущено» на t.me может отставать от реального номера — показываем не меньше номера подарка */
+function issuedNote(g: GiftInfo): string {
+  if (!g.issued || !g.total) return '';
+  const issued = Math.max(g.issued, g.num);
+  return ` <i>(выпущено ${issued.toLocaleString('ru-RU')} из ${g.total.toLocaleString('ru-RU')})</i>`;
+}
+
 export function giftUrl(g: Pick<GiftInfo, 'slug'>): string {
   return `https://t.me/nft/${g.slug}`;
 }
@@ -76,7 +83,7 @@ export function formatNewGift(ev: GiftEvent, g: GiftInfo, tz: string): string {
     header,
     '',
     `Коллекция: <b>${esc(displayTitle(g))}</b>`,
-    `Номер: <b>#${g.num}</b>${g.issued && g.total ? ` <i>(выпущено ${g.issued.toLocaleString('ru-RU')} из ${g.total.toLocaleString('ru-RU')})</i>` : ''}`,
+    `Номер: <b>#${g.num}</b>${issuedNote(g)}`,
     `Модель: ${fmtAttr(g.model)}`,
     `Фон: ${fmtAttr(g.backdrop)}`,
     `Узор: ${fmtAttr(g.symbol)}`,
@@ -101,7 +108,7 @@ export function formatGiftCard(g: GiftInfo, header: string): string {
     header,
     '',
     `Коллекция: <b>${esc(displayTitle(g))}</b>`,
-    `Номер: <b>#${g.num}</b>${g.issued && g.total ? ` <i>(выпущено ${g.issued.toLocaleString('ru-RU')} из ${g.total.toLocaleString('ru-RU')})</i>` : ''}`,
+    `Номер: <b>#${g.num}</b>${issuedNote(g)}`,
     `Модель: ${fmtAttr(g.model)}`,
     `Фон: ${fmtAttr(g.backdrop)}`,
     `Узор: ${fmtAttr(g.symbol)}`,

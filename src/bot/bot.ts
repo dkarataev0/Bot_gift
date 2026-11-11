@@ -1,5 +1,6 @@
 import { autoRetry } from '@grammyjs/auto-retry';
 import { Bot, type Context, InlineKeyboard, InputFile } from 'grammy';
+import type { UserFromGetMe } from 'grammy/types';
 import QRCode from 'qrcode';
 import type { AppConfig } from '../config.js';
 import type { Repository, UserRow } from '../db/repository.js';
@@ -23,6 +24,8 @@ export interface BotDeps {
   notifierStats: () => { sent: number; failed: number; lastSentAt: Date | null };
   onSettingsChanged: () => void;
   startedAt: Date;
+  /** Для тестов: не вызывать getMe */
+  botInfo?: UserFromGetMe;
 }
 
 type Pending = { kind: 'models' | 'template' } | { kind: 'password'; resolve: (s: string) => void };
@@ -43,7 +46,7 @@ function mainKeyboard() {
 
 export function createBot(deps: BotDeps): Bot {
   const { config, repo, sources } = deps;
-  const bot = new Bot(config.botToken);
+  const bot = new Bot(config.botToken, deps.botInfo ? { botInfo: deps.botInfo } : undefined);
   bot.api.config.use(autoRetry({ maxRetryAttempts: 3, maxDelaySeconds: 60 }));
   const pending = new Map<number, Pending>();
   let loginAbort: AbortController | null = null;

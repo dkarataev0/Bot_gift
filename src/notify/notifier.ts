@@ -60,6 +60,11 @@ export class Notifier {
       });
   }
 
+  /** Обработать все ожидающие события сейчас (используется в тестах) */
+  flush(): Promise<void> {
+    return this.process();
+  }
+
   private async process(): Promise<void> {
     for (;;) {
       const events = await this.repo.pendingEvents(200);
