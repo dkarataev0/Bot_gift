@@ -1,0 +1,33 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# Сервис работает 24/7: бот (long polling) + мониторинг + health-check.
+# Бесплатный тариф Render «засыпает» без входящего трафика, поэтому нужен платный Starter.
+services:
+  - type: web
+    name: tg-gift-monitor
+    runtime: node
+    plan: starter
+    region: frankfurt
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: TZ_DISPLAY
+        value: Europe/Moscow
+      - key: LOG_LEVEL
+        value: info
+      # Секреты — задаются вручную в панели Render (sync: false = не хранить в репозитории)
+      - key: BOT_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: ALLOWED_USER_IDS
+        sync: false
+      - key: TG_API_ID
+        sync: false
+      - key: TG_API_HASH
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
